@@ -1,8 +1,46 @@
 -- Copy dữ liệu để xử lý
-CREATE TABLE warehouse.employee_raw_copy AS SELECT * FROM staging.employee_raw;
+CREATE TABLE warehouse.employee_raw_copy AS
+SELECT
+	Age,
+	Attrition,
+	BusinessTravel,
+	CAST(DailyRate AS INT),
+	Department,
+	CAST(DistanceFromHome AS INT),
+	CAST(Education AS INT),
+	EducationField,
+	EmployeeCount,
+	EmployeeNumber,
+	CAST(EnvironmentSatisfaction AS INT),
+	Gender,
+	CAST(HourlyRate AS INT),
+	CAST(JobInvolvement AS INT),
+	CAST(JobLevel AS INT),
+	JobRole,
+	CAST(JobSatisfaction AS INT),
+	MaritalStatus,
+	MonthlyIncome,
+	CAST(MonthlyRate AS INT),
+	CAST(NumCompaniesWorked AS INT),
+	Over18,
+	OverTime,
+	CAST(PercentSalaryHike AS INT),
+	CAST(PerformanceRating AS INT),
+	CAST(RelationshipSatisfaction AS INT),
+	StandardHours,
+	CAST(StockOptionLevel AS INT),
+	CAST(TotalWorkingYears AS INT),
+	CAST(TrainingTimesLastYear AS INT),
+	CAST(WorkLifeBalance AS INT),
+	CAST(YearsAtCompany AS INT),
+	CAST(YearsInCurrentRole AS INT),
+	CAST(YearsSinceLastPromotion AS INT),
+	CAST(YearsWithCurrManager AS INT)
+FROM staging.employee_raw;
 
 -- SET đường dẫn mặc định
 SET SEARCH_PATH = warehouse;
+
 -- 1. Chuẩn hóa text, NULLIF
 UPDATE employee_raw_copy
 SET
@@ -28,8 +66,8 @@ SET
 		WHEN LOWER(Gender) IN ('f','female','woman') THEN 'F'
 		ELSE 'O' END,
 	Attrition = CASE
-		WHEN Attrition = 'Yes' THEN 1
-		ELSE 0 END;
+		WHEN Attrition = 'Yes' THEN TRUE
+		ELSE FALSE END;
 -- 3. Loại bỏ các cột không cần thiết 
 ALTER TABLE employee_raw_copy DROP COLUMN Over18;
 ALTER TABLE employee_raw_copy DROP COLUMN StandardHours;
@@ -47,8 +85,6 @@ GROUP BY Department;
 
 -- Chuyển dữ liệu đã xử lý vào các bảng trong warehouse
 
--- Bảng Department
-INSERT INTO Department(Department) SELECT DISTINCT Department FROM employee_raw_copy;
 -- Bảng Employee
 INSERT INTO Employee(EmployeeNumber,Age,Gender,MaritalStatus,Education,EducationField)
 SELECT DISTINCT
@@ -56,10 +92,47 @@ SELECT DISTINCT
 	Age::INT,
 	Gender,
 	MaritalStatus,
-	Education::INT,
+	Education,
 	EducationField
 FROM employee_raw_copy;
 -- Bảng Job
-INSERT INTO Job(JobRole,JobLevel) SELECT DISTINCT JobRole,JobLevel::INT FROM employee_raw_copy;
+INSERT INTO Job(JobRole,Department,JobLevel) SELECT DISTINCT JobRole,Department,JobLevel FROM employee_raw_copy;
 -- Bảng EmploymentDetails
-INSERT INTO EmploymentDetails
+INSERT INTO warehouse.EmploymentDetails (
+    EmployeeID, JobID, Attrition, BusinessTravel,
+    DailyRate, HourlyRate, MonthlyIncome, MonthlyRate, OverTime,
+    PercentSalaryHike, PerformanceRating, StockOptionLevel, TotalWorkingYears,
+    YearsAtCompany, YearsInCurrentRole, YearsSinceLastPromotion, YearsWithCurrManager,
+	EnvironmentSatisfaction,JobSatisfaction, RelationshipSatisfaction, DistanceFromHome,
+	JobInvolvement, TrainingTimeLastYear, WorkLifeBalance, NumCompaniesWorked
+)
+SELECT DISTINCT 
+    e.EmployeeID,
+    j.JobID,
+    ec.Attrition::BOOLEAN,
+    ec.BusinessTravel,
+    ec.DailyRate,
+    ec.HourlyRate,
+    ec.MonthlyIncome::INT,
+    ec.MonthlyRate,
+    ec.OverTime,
+    ec.PercentSalaryHike,
+    ec.PerformanceRating,
+    ec.StockOptionLevel,
+    ec.TotalWorkingYears,
+    ec.YearsAtCompany,
+    ec.YearsInCurrentRole,
+    ec.YearsSinceLastPromotion,
+    ec.YearsWithCurrManager,
+	ec.EnvironmentSatisfaction,
+	ec.JobSatisfaction,
+	ec.RelationshipSatisfaction, 
+	ec.DistanceFromHome,
+	ec.JobInvolvement,
+	ec.TrainingTimesLastYear,
+	ec.WorkLifeBalance,
+	ec.NumCompaniesWorked
+FROM employee_raw_copy ec
+JOIN warehouse.Employee e ON ec.EmployeeNumber::INT = e.EmployeeNumber
+JOIN warehouse.Job j ON ec.JobRole = j.JobRole AND ec.Department = j.Department AND ec.JobLevel = j.JobLevel;
+SELECT * FROM EmploymentDetails
