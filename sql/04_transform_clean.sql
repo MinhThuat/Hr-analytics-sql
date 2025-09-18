@@ -135,4 +135,13 @@ SELECT DISTINCT
 FROM employee_raw_copy ec
 JOIN warehouse.Employee e ON ec.EmployeeNumber::INT = e.EmployeeNumber
 JOIN warehouse.Job j ON ec.JobRole = j.JobRole AND ec.Department = j.Department AND ec.JobLevel = j.JobLevel;
-SELECT * FROM EmploymentDetails
+
+-- Kiểm tra dữ liệu sau khi nạp vào warehouse
+SELECT COUNT(*) FROM Employee;
+SELECT COUNT(*) FROM Job;
+SELECT COUNT(*) FROM EmploymentDetails;
+-- Kiểm tra về khóa ngoại
+SELECT COUNT(*) 
+FROM EmploymentDetails ed
+LEFT JOIN Employee e ON ed.EmployeeID = e.EmployeeID
+WHERE e.EmployeeNumber IS NULL;
