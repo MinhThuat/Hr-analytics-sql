@@ -10,7 +10,10 @@ FROM
 	ON ed.JobID = j.JobID;
 -- Tổng quan --
 -- 1 Tỷ lệ nghỉ việc của công ty
-SELECT COUNT(CASE WHEN Attrition = TRUE THEN 1 END)*1.0/COUNT(*) * 100 AS AttritionRate
+SELECT
+	COUNT(*) AS TotalEmployee,
+	COUNT(*) AS TotalLeavers,
+	ROUND(COUNT(CASE WHEN Attrition = TRUE THEN 1 END)*1.0/COUNT(*) * 100,2) AS AttritionRate
 FROM warehouse.hr_attrition_mart;
 -- 2 Số nhân viên nghỉ việc và còn lại
 SELECT
