@@ -29,12 +29,18 @@ SELECT
 FROM warehouse.hr_attrition_mart
 WHERE Attrition = TRUE;
 -- 4 Tỷ lệ nghỉ việc giữa nam và nữ
+-- Cơ cấu nghỉ việc của từng giới
 SELECT
 	ROUND(COUNT(CASE WHEN Gender = 'F' THEN 1 END)*1.0/COUNT(*) * 100,2) AS AttritionRateFemale,
 	ROUND(COUNT(CASE WHEN Gender = 'M' THEN 1 END)*1.0/COUNT(*) * 100,2) AS AttritionRateMale
 FROM warehouse.hr_attrition_mart
 WHERE Attrition = TRUE;
-
+-- Tỷ lệ nghỉ việc của từng giới
+SELECT 
+	Gender,
+	ROUND(100.0 * COUNT(CASE WHEN Attrition = TRUE THEN 1 END)/COUNT(*),2) AS AttritionRate
+FROM warehouse.hr_attrition_mart
+GROUP BY Gender;
 -- 5 Sự ảnh hưởng của Marital Status đến Attrition
 SELECT
 	ROUND(COUNT(CASE WHEN MaritalStatus = 'Married' THEN 1 END)*1.0/COUNT(*) * 100,2) AS AttritionRateMarried,
@@ -50,13 +56,11 @@ SELECT
 	ROUND(COUNT(CASE WHEN Department = 'Human Resources' THEN 1 END)*1.0/COUNT(*) * 100,2) AS AttritionRateHR
 FROM warehouse.hr_attrition_mart
 WHERE Attrition = TRUE;
-
-SELECT Department,COUNT(*) AS TotalEmployee
-FROM warehouse.hr_attrition_mart
-GROUP BY Department
 -- Tỷ lệ nghỉ việc của từng phòng ban so với tổng số nhân viên trong phòng ban đó 
 SELECT
 	Department,
+	COUNT(*) AS TotalEmployee,
+	COUNT(CASE WHEN Attrition = TRUE THEN 1 END) AS TotalLeavers,
 	ROUND(COUNT(CASE WHEN Attrition = TRUE THEN 1 END)*1.0/COUNT(*) * 100,2) AS AttritionRate
 FROM warehouse.hr_attrition_mart
 GROUP BY Department;
@@ -78,10 +82,13 @@ GROUP BY Overtime;
 
 -- 9 Số năm làm việc tại công ty có ảnh hưởng hay không ?
 SELECT
-	COUNT(CASE WHEN YearsAtCompany <= 5 THEN 1 END) AS SmallerThan5,
-	COUNT(CASE WHEN YearsAtCompany >5 AND YearsAtCompany <= 10 THEN 1 END) AS From6To10,
-	COUNT(CASE WHEN YearsAtCompany > 10 AND YearsAtCompany <= 20 THEN 1 END) AS From11To20,
-	COUNT(CASE WHEN YearsAtCompany > 20 THEN 1 END) AS LargerThan20
+	CASE
+		WHEN YearsAtCompany <= 5 THEN '0-5'
+		WHEN YearsAtCompany > 5 AND YearsAtCompany <= 10 THEN '6-10'
+		WHEN YearsAtCompany > 10 AND YearsAtCompany <= 20 THEN '11-20'
+		ELSE '20+'
+	END AS YearsGroup,
+	ROUND(100.0*COUNT(CASE WHEN Attrition = TRUE THEN 1 END)/COUNT(*),2) AS AttritionRate
 FROM warehouse.hr_attrition_mart
-WHERE Attrition = TRUE;
-
+GROUP BY YearsGroup
+ORDER BY YearsGroup;

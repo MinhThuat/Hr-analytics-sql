@@ -1,0 +1,32 @@
+"jobid","jobrole","department","joblevel"
+1,"Research Scientist","Research & Development",1
+2,"Sales Representative","Sales",2
+3,"Manager","Sales",5
+4,"Healthcare Representative","Research & Development",3
+5,"Research Director","Research & Development",3
+6,"Laboratory Technician","Research & Development",3
+7,"Healthcare Representative","Research & Development",2
+8,"Manager","Human Resources",5
+9,"Sales Executive","Sales",2
+10,"Healthcare Representative","Research & Development",4
+11,"Laboratory Technician","Research & Development",2
+12,"Manager","Human Resources",4
+13,"Manufacturing Director","Research & Development",2
+14,"Human Resources","Human Resources",1
+15,"Research Scientist","Research & Development",2
+16,"Manager","Research & Development",3
+17,"Research Director","Research & Development",5
+18,"Laboratory Technician","Research & Development",1
+19,"Manager","Sales",3
+20,"Manager","Research & Development",5
+21,"Sales Representative","Sales",1
+22,"Manufacturing Director","Research & Development",4
+23,"Sales Executive","Sales",3
+24,"Manager","Research & Development",4
+25,"Research Director","Research & Development",4
+26,"Manager","Sales",4
+27,"Sales Executive","Sales",4
+28,"Manufacturing Director","Research & Development",3
+29,"Research Scientist","Research & Development",3
+30,"Human Resources","Human Resources",2
+31,"Human Resources","Human Resources",3
