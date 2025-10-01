@@ -56,20 +56,20 @@
 ## 4. Các câu hỏi và kết quả 
 
 ### Q1: Xu hướng nghỉ việc theo độ tuổi
--SQL: 
-    SELECT
-        CASE
-            WHEN Age <= 22 THEN '18-22'
-            WHEN Age > 22 AND Age <= 30 THEN '23-30'
-            WHEN Age > 30 AND Age <= 39 THEN '31-39'
-            ELSE '40+'
-        END AS AgeGroup,
-        COUNT(*) AS TotalEmployee,
-        COUNT(CASE WHEN Attrition = TRUE THEN 1 END) AS TotalLeavers,
-        ROUND(COUNT(CASE WHEN Attrition = TRUE THEN 1 END)*100.0/COUNT(*),2) AS AttritionRate
-    FROM warehouse.hr_attrition_mart
-    GROUP BY AgeGroup
-    ORDER BY AgeGroup;
+-SQL:   
+    SELECT  
+        CASE  
+            WHEN Age <= 22 THEN '18-22'  
+            WHEN Age > 22 AND Age <= 30 THEN '23-30'  
+            WHEN Age > 30 AND Age <= 39 THEN '31-39'  
+            ELSE '40+'  
+        END AS AgeGroup,  
+        COUNT(*) AS TotalEmployee,  
+        COUNT(CASE WHEN Attrition = TRUE THEN 1 END) AS TotalLeavers,  
+        ROUND(COUNT(CASE WHEN Attrition = TRUE THEN 1 END)*100.0/COUNT(*),2) AS AttritionRate  
+    FROM warehouse.hr_attrition_mart  
+    GROUP BY AgeGroup  
+    ORDER BY AgeGroup;  
 - Kết quả:
     "agegroup"	"totalemployee"	"totalleavers"	"attritionrate"
     "18-22"	        57	            27	            47.37
@@ -80,8 +80,8 @@
 
 ### Q2: Sự ảnh hưởng của Marital Status đến Attrition
 - SQL:
-    SELECT  
-	MaritalStatus,  
+    SELECT    
+	MaritalStatus,    
         COUNT(*) AS TotalEmployee,  
         COUNT(CASE WHEN Attrition = TRUE THEN 1 END) AS TotalLeavers,  
         ROUND(COUNT(CASE WHEN Attrition = TRUE THEN 1 END)*100.0/COUNT(*),2) AS AttritionRate  
