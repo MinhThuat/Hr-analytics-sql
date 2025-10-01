@@ -22,12 +22,18 @@ SELECT
 FROM warehouse.hr_attrition_mart;
 -- 3 Xu hướng nghỉ việc theo độ tuổi
 SELECT
-	COUNT(CASE WHEN Age <= 22 THEN 1 END) AS From18To22,
-	COUNT(CASE WHEN Age > 22 AND Age <= 30 THEN 1 END) AS From23To30,
-	COUNT(CASE WHEN Age > 30 AND Age <= 39 THEN 1 END) AS From31To39,
-	COUNT(CASE WHEN Age >= 40 THEN 1 END) AS LargerThan40
+	CASE
+		WHEN Age <= 22 THEN '18-22'
+		WHEN Age > 22 AND Age <= 30 THEN '23-30'
+		WHEN Age > 30 AND Age <= 39 THEN '31-39'
+		ELSE '40+'
+	END AS AgeGroup,
+	COUNT(*) AS TotalEmployee,
+	COUNT(CASE WHEN Attrition = TRUE THEN 1 END) AS TotalLeavers,
+	ROUND(COUNT(CASE WHEN Attrition = TRUE THEN 1 END)*100.0/COUNT(*),2) AS AttritionRate
 FROM warehouse.hr_attrition_mart
-WHERE Attrition = TRUE;
+GROUP BY AgeGroup
+ORDER BY AgeGroup;
 -- 4 Tỷ lệ nghỉ việc giữa nam và nữ
 -- Cơ cấu nghỉ việc của từng giới
 SELECT
@@ -43,11 +49,13 @@ FROM warehouse.hr_attrition_mart
 GROUP BY Gender;
 -- 5 Sự ảnh hưởng của Marital Status đến Attrition
 SELECT
-	ROUND(COUNT(CASE WHEN MaritalStatus = 'Married' THEN 1 END)*1.0/COUNT(*) * 100,2) AS AttritionRateMarried,
-	ROUND(COUNT(CASE WHEN MaritalStatus = 'Divorced' THEN 1 END)*1.0/COUNT(*) * 100,2) AS AttritionRateDivorced,
-	ROUND(COUNT(CASE WHEN MaritalStatus = 'Single' THEN 1 END)*1.0/COUNT(*) * 100,2) AS AttritionRateSingle
+	MaritalStatus,
+	COUNT(*) AS TotalEmployee,
+	COUNT(CASE WHEN Attrition = TRUE THEN 1 END) AS TotalLeavers,
+	ROUND(COUNT(CASE WHEN Attrition = TRUE THEN 1 END)*100.0/COUNT(*),2) AS AttritionRate
 FROM warehouse.hr_attrition_mart
-WHERE Attrition = TRUE;
+GROUP BY MaritalStatus
+ORDER BY AttritionRate;
 -- 6 Tỷ lệ nghỉ việc theo Department và số nhân viên của từng phòng ban
 -- Tỷ lệ nghỉ việc của từng phòng ban so với tổng số nhân viên nghỉ việc
 SELECT
@@ -71,7 +79,8 @@ SELECT
 	JobRole,
 	ROUND(COUNT(CASE WHEN Attrition = TRUE THEN 1 END)*1.0/COUNT(*) * 100,2) AS AttritionRate
 FROM warehouse.hr_attrition_mart
-GROUP BY JobRole;
+GROUP BY JobRole
+ORDER BY AttritionRate;
 
 -- 8 Nhân viên Overtime có tỷ lệ nghỉ việc cao hơn nhân viên không làm thêm giờ hay không ?
 SELECT
