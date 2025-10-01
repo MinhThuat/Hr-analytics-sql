@@ -56,7 +56,8 @@
 ## 4. Các câu hỏi và kết quả 
 
 ### Q1: Xu hướng nghỉ việc theo độ tuổi
--SQL:   
+-SQL:
+```sql   
     SELECT  
         CASE  
             WHEN Age <= 22 THEN '18-22'  
@@ -70,12 +71,15 @@
     FROM warehouse.hr_attrition_mart  
     GROUP BY AgeGroup  
     ORDER BY AgeGroup;  
+```
 - Kết quả:
+<pre>```
     "agegroup"	"totalemployee"	"totalleavers"	"attritionrate"
     "18-22"	        57	            27	            47.37
     "23-30"	        329	            73	            22.19
     "31-39"	        562	            80	            14.23
     "40+"	        522	            57	            10.92
+    ```</pre>
 - Insight: Tỷ lệ nghỉ việc giảm dần theo tuổi với nhóm nhỏ hơn 22 tuổi có tỷ lệ nghỉ việc cực cao do họ còn trẻ và dễ bị thu hút bởi các cơ hội khác. Với nhóm từ 23-30 họ bắt đầu ổn định sự nghiệp của mình và tỷ lệ nghỉ việc giảm xuống nhưng vẫn còn khá cao do họ thường tìm các công việc có lộ trình thăng tiến rõ ràng và lương ổn định và công ty cần chú trọng chính sách lương thưởng và lộ trình thăng tiến rõ ràng cho nhóm này. Những nhóm tuổi lớn hơn có tỷ lệ nghỉ việc thấp hơn nhưng nếu để mất những người này công ty sẽ mất đi những nhân lực giàu kinh nghiệm.
 
 ### Q2: Sự ảnh hưởng của Marital Status đến Attrition
