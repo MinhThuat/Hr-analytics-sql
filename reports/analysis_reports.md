@@ -73,17 +73,18 @@
     ORDER BY AgeGroup;  
 ```
 - Kết quả:
-<pre>```
+<pre>
     "agegroup"	"totalemployee"	"totalleavers"	"attritionrate"
     "18-22"	        57	            27	            47.37
     "23-30"	        329	            73	            22.19
     "31-39"	        562	            80	            14.23
     "40+"	        522	            57	            10.92
-    ```</pre>
+</pre>
 - Insight: Tỷ lệ nghỉ việc giảm dần theo tuổi với nhóm nhỏ hơn 22 tuổi có tỷ lệ nghỉ việc cực cao do họ còn trẻ và dễ bị thu hút bởi các cơ hội khác. Với nhóm từ 23-30 họ bắt đầu ổn định sự nghiệp của mình và tỷ lệ nghỉ việc giảm xuống nhưng vẫn còn khá cao do họ thường tìm các công việc có lộ trình thăng tiến rõ ràng và lương ổn định và công ty cần chú trọng chính sách lương thưởng và lộ trình thăng tiến rõ ràng cho nhóm này. Những nhóm tuổi lớn hơn có tỷ lệ nghỉ việc thấp hơn nhưng nếu để mất những người này công ty sẽ mất đi những nhân lực giàu kinh nghiệm.
 
 ### Q2: Sự ảnh hưởng của Marital Status đến Attrition
 - SQL:
+```sql
     SELECT    
 	MaritalStatus,    
         COUNT(*) AS TotalEmployee,  
@@ -92,15 +93,19 @@
     FROM warehouse.hr_attrition_mart  
     GROUP BY MaritalStatus  
     ORDER BY AttritionRate;  
+```
+</pre>
 - Kết quả:
     "maritalstatus"  	"totalemployee"  	"totalleavers"  	"attritionrate"  
     "Divorced"	            327  	            33  	            10.09  
     "Married"	            673  	            84  	            12.48  
     "Single"	            470  	            120  	            25.53  
+</pre>
 - Insight: Tỷ lệ nghỉ việc cao nhất ở những người độc thân khi mà họ có thể tự do chuyển ngành hay nơi làm việc mà không cần lo lắng quá nhiều về tiền với khoảng 25.53% nghỉ việc ở nhóm này. Tỷ lệ này được giảm xuống khá thấp với nhóm những người đã kết hôn do họ cần sự ổn định và gắn bó với công ty lâu dài hơn và thấp nhất ở những người đã ly hôn có thể do nhu cầu tài chính hoặc sự ổn định cá nhân cao hơn.
 
 ### Q3: Tỷ lệ nghỉ việc theo Department
 - SQL:
+```sql
     SELECT
         Department,
         COUNT(*) AS TotalEmployee,
@@ -108,21 +113,27 @@
         ROUND(COUNT(CASE WHEN Attrition = TRUE THEN 1 END)*1.0/COUNT(*) * 100,2) AS AttritionRate
     FROM warehouse.hr_attrition_mart
     GROUP BY Department;
+```
+</pre>
 - Kết quả:
     "department"	            "totalemployee"	"totalleavers"	"attritionrate"
     "Human Resources"	            63	            12	            19.05
     "Research & Development"	    961	            133	            13.84
     "Sales"	                        446	            92	            20.63
+</pre>  
 - Insight: Tỷ lệ nghỉ việc ở các phòng ban có thể xem là tương tự nhau với mức cao nhất ở phòng Sales (20.63%) và thấp nhất ở phòng Research & Development (13.84%). Cần xem xét lại những lý do chính khiến mức nghỉ việc ở phòng Sales cao như vậy (lương thưởng, chính sách thăng tiến, môi trường làm việc). Ngoài ra phòng Human Resources cũng có tỷ lệ khá cao gần bằng Sales (19.05%) nhưng tổng số nhân viên khá ít và số nhân viên nghỉ việc cũng ít nhưng tỷ lệ nghỉ việc như vậy cũng nên xem xét lại những chính sách giữ chân
 
 ### Q4: Tỷ lệ nghỉ việc theo JobRole
 - SQL: 
+```sql
     SELECT
         JobRole,
         ROUND(COUNT(CASE WHEN Attrition = TRUE THEN 1 END)*1.0/COUNT(*) * 100,2) AS AttritionRate
     FROM warehouse.hr_attrition_mart
     GROUP BY JobRole
     ORDER BY AttritionRate;
+```
+</pre>
 - Kết quả:
     "jobrole"	                "attritionrate"
     "Research Director"	            2.50
@@ -134,17 +145,22 @@
     "Human Resources"	            23.08
     "Laboratory Technician"	        23.94
     "Sales Representative"	        39.76
+</pre>
 - Insight: Nhóm những vị trí như Research Director, Manager có tỷ lệ nghỉ việc rất thấp do đây là những vị trí cấp cao, ổn định lương cao và khó tìm người thay thế và họ cũng là những người gắn bó lâu dài. Research Scientist và Sales Executive là những nhóm chuyên môn hóa cao có tỷ lệ nghỉ việc trung bình (16-17%) khả năng cạnh tranh từ thị trường cao những vẫn tương đối ổn định. Những nhóm còn lại như HR, Laboratory Technician, Sales Representative có tỷ lệ nghỉ việc cực cao phản ánh đúng việc tỷ lệ nghỉ việc ở những phòng ban này cũng cao do đó đây là những nhóm có áp lực công việc cao, biến động thị trường việc làm cũng dễ ảnh hưởng tới những nhóm này và thiếu động lực giữ chân những nhân sự này
 
 ### Q5: Nhân viên Overtime có tỷ lệ nghỉ việc cao hơn nhân viên không làm thêm giờ hay không ?
 - SQL: 
+```sql
     SELECT
         Overtime,
         ROUND(COUNT(CASE WHEN Attrition = TRUE THEN 1 END)*1.0/COUNT(*) * 100,2) AS AttritionRate
     FROM warehouse.hr_attrition_mart
     GROUP BY Overtime;
+```
+</pre>
 - Kết quả:
     "overtime"	"attritionrate"
     "No"	        10.44
     "Yes"	        30.53
+</pre>
 - Insight: Những người thường xuyên tăng ca có tỷ lệ nghỉ việc gấp 3 lần so với những người không làm thêm giờ. Công ty nên xem xét lại chính sách lương thưởng dành cho những nhân viên làm thêm giờ để tạo thêm động lực giữ chân những người này.
