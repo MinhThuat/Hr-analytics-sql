@@ -94,7 +94,7 @@
     GROUP BY MaritalStatus  
     ORDER BY AttritionRate;  
 ```
-</pre>
+<pre>
 - Kết quả:
     "maritalstatus"  	"totalemployee"  	"totalleavers"  	"attritionrate"  
     "Divorced"	            327  	            33  	            10.09  
@@ -114,7 +114,7 @@
     FROM warehouse.hr_attrition_mart
     GROUP BY Department;
 ```
-</pre>
+<pre>
 - Kết quả:
     "department"	            "totalemployee"	"totalleavers"	"attritionrate"
     "Human Resources"	            63	            12	            19.05
@@ -133,7 +133,7 @@
     GROUP BY JobRole
     ORDER BY AttritionRate;
 ```
-</pre>
+<pre>
 - Kết quả:
     "jobrole"	                "attritionrate"
     "Research Director"	            2.50
@@ -157,7 +157,7 @@
     FROM warehouse.hr_attrition_mart
     GROUP BY Overtime;
 ```
-</pre>
+<pre>
 - Kết quả:
     "overtime"	"attritionrate"
     "No"	        10.44
