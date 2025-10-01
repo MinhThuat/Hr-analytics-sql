@@ -80,19 +80,19 @@
 
 ### Q2: Sự ảnh hưởng của Marital Status đến Attrition
 - SQL:
-    SELECT
-	MaritalStatus,
-        COUNT(*) AS TotalEmployee,
-        COUNT(CASE WHEN Attrition = TRUE THEN 1 END) AS TotalLeavers,
-        ROUND(COUNT(CASE WHEN Attrition = TRUE THEN 1 END)*100.0/COUNT(*),2) AS AttritionRate
-    FROM warehouse.hr_attrition_mart
-    GROUP BY MaritalStatus
-    ORDER BY AttritionRate;
+    SELECT  
+	MaritalStatus,  
+        COUNT(*) AS TotalEmployee,  
+        COUNT(CASE WHEN Attrition = TRUE THEN 1 END) AS TotalLeavers,  
+        ROUND(COUNT(CASE WHEN Attrition = TRUE THEN 1 END)*100.0/COUNT(*),2) AS AttritionRate  
+    FROM warehouse.hr_attrition_mart  
+    GROUP BY MaritalStatus  
+    ORDER BY AttritionRate;  
 - Kết quả:
-    "maritalstatus"	"totalemployee"	"totalleavers"	"attritionrate"
-    "Divorced"	            327	            33	            10.09
-    "Married"	            673	            84	            12.48
-    "Single"	            470	            120	            25.53
+    "maritalstatus"  	"totalemployee"  	"totalleavers"  	"attritionrate"  
+    "Divorced"	            327  	            33  	            10.09  
+    "Married"	            673  	            84  	            12.48  
+    "Single"	            470  	            120  	            25.53  
 - Insight: Tỷ lệ nghỉ việc cao nhất ở những người độc thân khi mà họ có thể tự do chuyển ngành hay nơi làm việc mà không cần lo lắng quá nhiều về tiền với khoảng 25.53% nghỉ việc ở nhóm này. Tỷ lệ này được giảm xuống khá thấp với nhóm những người đã kết hôn do họ cần sự ổn định và gắn bó với công ty lâu dài hơn và thấp nhất ở những người đã ly hôn có thể do nhu cầu tài chính hoặc sự ổn định cá nhân cao hơn.
 
 ### Q3: Tỷ lệ nghỉ việc theo Department
