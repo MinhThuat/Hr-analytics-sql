@@ -18,7 +18,8 @@ GROUP BY Attrition
 -- 2. Nhân viên thu nhập thấp có rời bỏ nhiều hơn không 
 SELECT
 	COUNT(*) AS TotalEmployeeInactivity,
-	COUNT(CASE WHEN MonthlyIncome < (SELECT PERCENTILE_DISC(0.5) WITHIN GROUP(ORDER BY MonthlyIncome) FROM warehouse.hr_attrition_mart) THEN 1 END) 
+	COUNT(CASE WHEN MonthlyIncome < (SELECT PERCENTILE_DISC(0.5) WITHIN GROUP(ORDER BY MonthlyIncome) FROM warehouse.hr_attrition_mart) THEN 1 END),
+	ROUND(COUNT(CASE WHEN MonthlyIncome < (SELECT PERCENTILE_DISC(0.5) WITHIN GROUP(ORDER BY MonthlyIncome) FROM warehouse.hr_attrition_mart) THEN 1 END)*100.0/COUNT(*),2) AS AttritionRate
 FROM
 	warehouse.hr_attrition_mart
 WHERE Attrition = TRUE

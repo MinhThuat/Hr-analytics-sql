@@ -164,3 +164,72 @@
     "Yes"	        30.53
 </pre>
 - Insight: Những người thường xuyên tăng ca có tỷ lệ nghỉ việc gấp 3 lần so với những người không làm thêm giờ. Công ty nên xem xét lại chính sách lương thưởng dành cho những nhân viên làm thêm giờ để tạo thêm động lực giữ chân những người này.
+
+### Q6: Tỷ lệ nghỉ việc của nhân viên có thu nhập thấp hơn mức trung vị của công ty như thế nào ?
+- SQL:
+```sql
+SELECT
+	COUNT(*) AS TotalEmployeeInactivity,
+	COUNT(CASE WHEN MonthlyIncome < (SELECT PERCENTILE_DISC(0.5) WITHIN GROUP(ORDER BY MonthlyIncome) FROM warehouse.hr_attrition_mart) THEN 1 END),
+	ROUND(COUNT(CASE WHEN MonthlyIncome < (SELECT PERCENTILE_DISC(0.5) WITHIN GROUP(ORDER BY MonthlyIncome) FROM warehouse.hr_attrition_mart) THEN 1 END)*100.0/COUNT(*),2) AS AttritionRate
+FROM
+	warehouse.hr_attrition_mart
+WHERE Attrition = TRUE;
+```
+- Kết quả:
+<pre>
+"totalemployeeinactivity"	"count"	"attritionrate"
+237	                          160	    67.51
+</pre>
+- Insight: Tỷ lệ nhân viên có thu nhập thấp rời bỏ ở mức cao với hơn 1 nửa nhân viên trong số đó lựa chọn nghỉ việc với việc thu nhập thấp hơn mức trung vị của công ty. Công ty cần có chiến lược đánh giá thêm về mức lương và phúc lợi của nhân viên để hạn chế tình trạng này. Ngoài ra có thể tìm hiểu thêm về những lý do khiến những người này rời bỏ để có chính sách hợp lý.
+
+### Q7: Thu nhập thấp có ảnh hưởng đến tỷ lệ nghỉ việc trong từng Vai trò công việc trong công ty ?
+- SQL:
+```sql
+WITH median_income AS (
+	SELECT
+		JobRole,
+		PERCENTILE_DISC(0.5) WITHIN GROUP (ORDER BY MonthlyIncome) AS median_income
+	FROM
+		warehouse.hr_attrition_mart
+	GROUP BY JobRole
+)
+SELECT
+	h.JobRole,
+	CASE
+		WHEN h.MonthlyIncome < m.median_income THEN 'Low Income'
+		ELSE 'High Income'
+	END AS IncomeLevel,
+	ROUND(100.0*COUNT(CASE WHEN h.Attrition = TRUE THEN 1 END)/COUNT(*),2) AS AttritionRate
+FROM
+	warehouse.hr_attrition_mart AS h JOIN median_income AS m
+	ON h.JobRole = m.JobRole
+GROUP BY h.JobRole,IncomeLevel
+ORDER BY h.JobRole,IncomeLevel;
+```
+- Kết quả: Income level được dựa vào mức lương trung vị của jobrole đó
+<pre>
+"jobrole"	                    "incomelevel"	       "attritionrate"
+"Healthcare Representative"	     "High Income"	             10.45
+"Healthcare Representative"	     "Low Income"	             3.13
+"Human Resources"	             "High Income"	             7.41
+"Human Resources"	             "Low Income"	             40.00
+"Laboratory Technician"	         "High Income"	             19.23
+"Laboratory Technician"	         "Low Income"	             28.68
+"Manager"	                     "High Income"	             5.77
+"Manager"	                     "Low Income"	             4.00
+"Manufacturing Director"	     "High Income"	             6.85
+"Manufacturing Director"	     "Low Income"	             6.94
+"Research Director"	             "High Income"	             4.88
+"Research Director"	             "Low Income"	             0.00
+"Research Scientist"	         "High Income"	             9.52
+"Research Scientist"	         "Low Income"	             22.76
+"Sales Executive"	             "High Income"	             19.51
+"Sales Executive"	             "Low Income"	             15.43
+"Sales Representative"	         "High Income"	             33.33
+"Sales Representative"	         "Low Income"	             46.34
+</pre>
+- Insight:
+    + Ở đa số JobRole tỷ lệ nghỉ việc của nhóm thu nhập thấp cao hơn đáng kể so với thu nhập cao ví dụ vị trí Human Resources là 40% so với chỉ 7.41% (chênh lệch khoảng 5 lần), ở vị trí Research Scientist là 22% so với chỉ 9.52% và 1 số phòng ban khác cũng có sự chênh lệch lớn như Laboratory Technician và Sales Representative -> Điều này cho thấy sự chênh lệch lương thưởng và công bằng trong thu nhập là nguyên nhân chính dẫn đến nghỉ việc. 
+    + Các nhóm còn lại như Manager, Manufacturing Director, Research Director có tỷ lệ nghỉ việc giữa 2 nhóm khá tương đồng nhau và không chênh lệch nhiều. Như đã thấy đây là nhóm nhân viên với vị trí cấp cao thường gắn bó lâu dài và lương thưởng cũng khá cao so với mặt bằng chung công ty.
+    + Sales Representative và HR Low Income là hai nhóm rủi ro nhất (attrition > 40%). Cần ưu tiên Retention cao bằng các thay đổi chính sách hợp lý.
