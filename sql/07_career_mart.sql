@@ -13,6 +13,8 @@ SELECT * FROM warehouse.hr_career_mart
 -- 1. Sự khác nhau giữa các JobLevel về Attrition
 SELECT
 	JobLevel,
+	COUNT(*) AS TotalEmployee,
+	COUNT(CASE WHEN Attrition = TRUE THEN 1 END) AS TotalLeavers,
 	ROUND(COUNT(CASE WHEN Attrition = TRUE THEN 1 END)*1.0/COUNT(*) * 100,2) AS AttritionRate
 FROM warehouse.hr_attrition_mart
 GROUP BY JobLevel
@@ -75,7 +77,8 @@ SELECT
 		ELSE '10+ years'
 	END AS YearsInCurrentRoleGroup,
 	ROUND(100.0 * COUNT(CASE WHEN Attrition = TRUE THEN 1 END) / COUNT(*), 2) AS AttritionRate,
-	COUNT(*) AS TotalEmployees
+	COUNT(*) AS TotalEmployees,
+	COUNT(CASE WHEN Attrition = TRUE THEN 1 END) AS TotalLeavers
 FROM
 	warehouse.hr_career_mart as cm JOIN warehouse.hr_attrition_mart as am
 	ON cm.EmployeeID = am.EmployeeID

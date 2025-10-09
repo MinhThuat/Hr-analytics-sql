@@ -233,3 +233,58 @@ ORDER BY h.JobRole,IncomeLevel;
     + Ở đa số JobRole tỷ lệ nghỉ việc của nhóm thu nhập thấp cao hơn đáng kể so với thu nhập cao ví dụ vị trí Human Resources là 40% so với chỉ 7.41% (chênh lệch khoảng 5 lần), ở vị trí Research Scientist là 22% so với chỉ 9.52% và 1 số phòng ban khác cũng có sự chênh lệch lớn như Laboratory Technician và Sales Representative -> Điều này cho thấy sự chênh lệch lương thưởng và công bằng trong thu nhập là nguyên nhân chính dẫn đến nghỉ việc. 
     + Các nhóm còn lại như Manager, Manufacturing Director, Research Director có tỷ lệ nghỉ việc giữa 2 nhóm khá tương đồng nhau và không chênh lệch nhiều. Như đã thấy đây là nhóm nhân viên với vị trí cấp cao thường gắn bó lâu dài và lương thưởng cũng khá cao so với mặt bằng chung công ty.
     + Sales Representative và HR Low Income là hai nhóm rủi ro nhất (attrition > 40%). Cần ưu tiên Retention cao bằng các thay đổi chính sách hợp lý.
+
+### Q8: Sự khác nhau giữa các JobLevel và tỷ lệ nghỉ việc
+- SQL:
+```sql
+    SELECT
+        JobLevel,
+        COUNT(*) AS TotalEmployee,
+        COUNT(CASE WHEN Attrition = TRUE THEN 1 END) AS TotalLeavers,
+        ROUND(COUNT(CASE WHEN Attrition = TRUE THEN 1 END)*1.0/COUNT(*) * 100,2) AS AttritionRate
+    FROM warehouse.hr_attrition_mart
+    GROUP BY JobLevel
+    ORDER BY JobLevel;
+```
+- Kết quả:
+<pre>
+"joblevel"	"totalemployee"	"totalleavers"	"attritionrate"
+    1	            543	            143	            26.34
+    2	            534	            52	            9.74
+    3	            218	            32	            14.68
+    4	            106	            5	            4.72
+    5	            69	            5	            7.25
+</pre>
+- Insight: Đối với những người có JobLevel từ 3 trở xuống tỷ lệ nghỉ việc của họ khá cao so với 2 cấp bậc cao nhất, nhất là với JobLevel 1 có tỷ lệ nghỉ việc hơn 1/4 nhân viên, những nhân viên này đa số là những người mới vào công ty hoặc thâm niên làm việc không nhiều họ dễ có khả năng nhảy việc hoặc bị thu hút bởi những nơi có quyền lợi tốt hơn hoặc cũng có thể là do làm việc lâu mà không có dấu hiệu thăng tiến. Nhưng khi đã có mức độ thăng tiến nhất định (2 và 3) xu hướng nghỉ việc giảm xuống. Ở mức 2 do đây là giai đoạn bước đầu ổn định được công việc và có kinh nghiệm nhất định còn ở mức 3 khi mà nhân viên đã có 1 lượng kinh nghiệm và vị trí nhất định họ sẽ dễ cân nhắc để làm việc cho một công ty khác với phúc lợi cao hơn hoặc tìm một cơ hội mới với vốn kinh nghiệm đã tích lũy hoặc một nơi khác có cơ hội thăng tiến cao hơn. Ở mức 4 và 5 đây là các vị trí đã cực kì ổn định và gắn bó lâu dài với công ty nên ít người lựa chọn rời bỏ. Như vậy ở mức 1 là mức cần được cân nhắc thêm các chính sách giữ chân để có thể có nguồn lao động trẻ bằng cách thêm các chính sách đào tạo, thăng tiến, cân nhắc tăng lương thưởng cơ bản, cải thiện môi trường làm việc. 
+
+### Q9: Mối liên hệ giữa số năm làm việc ở 1 vị trí và tỷ lệ nghỉ việc
+- SQL:
+```sql
+    SELECT
+        CASE
+            WHEN YearsInCurrentRole <= 5 THEN '0-5 years'
+            WHEN YearsInCurrentRole > 5 AND YearsInCurrentRole <= 10 THEN '6-10 years'
+            ELSE '10+ years'
+        END AS YearsInCurrentRoleGroup,
+        ROUND(100.0 * COUNT(CASE WHEN Attrition = TRUE THEN 1 END) / COUNT(*), 2) AS AttritionRate,
+        COUNT(*) AS TotalEmployees,
+        COUNT(CASE WHEN Attrition = TRUE THEN 1 END) AS TotalLeavers
+    FROM
+        warehouse.hr_career_mart as cm JOIN warehouse.hr_attrition_mart as am
+        ON cm.EmployeeID = am.EmployeeID
+    GROUP BY
+        CASE
+            WHEN YearsInCurrentRole <= 5 THEN '0-5 years'
+            WHEN YearsInCurrentRole > 5 AND YearsInCurrentRole <= 10 THEN '6-10 years'
+            ELSE '10+ years'
+        END
+    ORDER BY YearsInCurrentRoleGroup;
+```
+- Kết quả: 
+<pre>
+"yearsincurrentrolegroup"	"attritionrate"	"totalemployees"	"totalleavers"
+"0-5 years"	                        19.41	       948	               184
+"6-10 years"	                    10.81	       444	                48
+"10+ years"	                        6.41	        78	                 5
+</pre>
+- Insight: Với nhóm làm trong cùng 1 vị trí dưới 5 năm tỷ lệ nghỉ việc khá cao ~ 20% nhân viên nghỉ việc, những nhân viên này cũng như những phân tích ở trên đa số là những nhân viên mới, thiếu gắn bó với công ty nên tỷ lệ nhảy việc cao hoặc thiếu chính sách hỗ trợ từ công ty. Với những nhân viên gắn bó với công ty từ 6 đến 10 năm nhưng ở trong cùng một vị trí mà không có gì thay đổi mặc dù tỷ lệ nghỉ việc đã giảm xuống đáng kể nhưng vẫn còn cao nếu so với thâm niên (cứ 10 người thì sẽ có 1 người nghỉ việc), tuy nhiên nhóm này cũng đã tương đối ổn định và gắn bó với công ty trong thời gian dài nên tỷ lệ nghỉ việc khoảng 10% cũng là một con số chấp nhận được (dù không có sự thay đổi trong vai trò công việc). Với nhóm đã làm hơn 10 năm trong cùng 1 vị trí tỷ lệ nghỉ việc chỉ còn 6,41% cho thấy họ cảm thấy an toàn và yên tâm với vị trí hiện tại (lợi ích được tích lũy qua thâm niên, uy tín trong công ty) họ không muốn thay đổi do sợ rủi ro hoặc thay đổi môi trường làm việc --> Tỷ lệ nghỉ việc giảm dần với số năm gắn bó trong cùng 1 vai trò tăng lên. Với từng nhóm nên có những chính sách nhất định như với 0-5 năm nên có chính sách, con đường thăng tiến sự nghiệp rõ ràng và có mentor chất lượng với nhóm này, với nhóm từ 6-10 năm công ty nên xem xét thăng chức hoặc luân chuyển các vị trí khác phù hợp hoặc cao hơn trong nội bộ công ty. Với nhóm trên 10 năm nên có chính sách cho những nhân viên có thâm niên lâu dài.
